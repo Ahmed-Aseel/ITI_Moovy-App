@@ -1,0 +1,13 @@
+{
+  "name": "movie-app",
+  "version": "1.0.0",
+  "description": "A movie web app with login/signup using JSON Server and TypeScript",
+  "scripts": {
+    "server": "json-server --watch users-db.json --port 3000",
+    "build": "tsc",
+    "watch": "tsc -w"
+  },
+  "devDependencies": {
+    "json-server": "^1.0.0-beta.3"
+  }
+}
