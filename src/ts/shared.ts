@@ -1,20 +1,15 @@
-// shared.ts
-
-// Base URL for API calls
-export const API_BASE_URL = "http://localhost:3000";
-
-// Regular expressions for validating input formats
+// --- Validation Patterns ---
 export const regexPatterns = {
     username: /^[a-zA-Z0-9_]{3,20}$/, // 3–20 chars: letters, numbers, underscore
     email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, // Basic email format
-    password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/ // Password strength
+    password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/ // At least 6 chars with upper, lower, number, special
 };
 
-// User-facing validation and error messages
+// --- User-Facing Validation and Error Messages ---
 export const MESSAGES = {
     username: {
         required: "Username is required",
-        invalid: "Username must be 3-20 characters, letters, numbers or underscore only"
+        invalid: "Username must be 3–20 characters, letters, numbers, or underscores only"
     },
     email: {
         required: "Email is required",
@@ -32,21 +27,29 @@ export const MESSAGES = {
     emailCheckFail: "Error email check failed. Please try again."
 };
 
-// Shows validation error in the corresponding alert div
+// --- UI Feedback Helpers ---
+
+/**
+ * Displays a validation error message.
+ */
 export function showError(alertDiv: HTMLElement, message: string) {
     alertDiv.classList.remove("d-none");
     const small = alertDiv.querySelector("small");
     if (small) small.textContent = message;
 }
 
-// Hides the alert and clears its message
+/**
+ * Hides a validation error.
+ */
 export function hideError(alertDiv: HTMLElement) {
     alertDiv.classList.add("d-none");
     const small = alertDiv.querySelector("small");
     if (small) small.textContent = "";
 }
 
-// Displays a temporary popup message (success or error)
+/**
+ * Displays a temporary popup message.
+ */
 export function showPopup(message: string, type: "success" | "danger" = "danger") {
     const popup = document.getElementById("popupMessage")!;
     popup.className = `position-fixed top-0 start-50 translate-middle-x alert alert-${type}`;
@@ -56,7 +59,11 @@ export function showPopup(message: string, type: "success" | "danger" = "danger"
     setTimeout(() => popup.classList.add("d-none"), 3000);
 }
 
-// Hashes password securely using SHA-256
+// --- Password Utilities ---
+
+/**
+ * Hashes a password using SHA-256 and returns a hex string.
+ */
 export async function hashPassword(password: string): Promise<string> {
     const encoder = new TextEncoder();
     const data = encoder.encode(password);
