@@ -1,5 +1,8 @@
-// signup.ts
-import { API_BASE_URL, regexPatterns, MESSAGES, showError, hideError, showPopup, hashPassword } from "./shared.js"; // Reusing exports from shared
+// --- Imports ---
+import { regexPatterns, MESSAGES, showError, hideError, showPopup, hashPassword } from "./shared.js";
+import { registerUser, isEmailExist } from "./api.js";
+import { redirectToSignIn } from "./auth.js";
+// --- Element References ---
 const form = document.querySelector("form");
 const userNameInput = document.getElementById("username");
 const emailInput = document.getElementById("email");
@@ -7,6 +10,7 @@ const passwordInput = document.getElementById("password");
 const userNameAlert = userNameInput.nextElementSibling;
 const emailAlert = emailInput.nextElementSibling;
 const passwordAlert = passwordInput.parentElement.nextElementSibling;
+// --- DOM Events ---
 document.addEventListener("DOMContentLoaded", () => {
     userNameInput.addEventListener("input", () => validateUsername(userNameInput.value.trim(), userNameAlert));
     emailInput.addEventListener("input", () => validateEmailFormatOnly(emailInput.value.trim(), emailAlert));
@@ -20,6 +24,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     form.addEventListener("submit", handleFormSubmit);
 });
+/**
+ * Handles form submission:
+ * - Validates inputs
+ * - Checks email existence
+ * - Hashes password and registers user
+ */
 async function handleFormSubmit(e) {
     e.preventDefault();
     const username = userNameInput.value.trim();
@@ -34,9 +44,9 @@ async function handleFormSubmit(e) {
         isValid = false;
     if (!isValid)
         return;
-    const hashedPassword = await hashPassword(password);
-    const newUser = { username, email, password: hashedPassword };
     try {
+        const hashedPassword = await hashPassword(password);
+        const newUser = { username, email, password: hashedPassword };
         const response = await registerUser(newUser);
         if (response.ok) {
             redirectToSignIn();
@@ -49,6 +59,11 @@ async function handleFormSubmit(e) {
         showPopup(MESSAGES.serverFail);
     }
 }
+/**
+ * Validates username:
+ * - Required
+ * - Format must match pattern
+ */
 function validateUsername(username, alertDiv) {
     if (!username) {
         showError(alertDiv, MESSAGES.username.required);
@@ -61,6 +76,9 @@ function validateUsername(username, alertDiv) {
     hideError(alertDiv);
     return true;
 }
+/**
+ * Validates email format only (without checking server)
+ */
 function validateEmailFormatOnly(email, alertDiv) {
     if (!email) {
         showError(alertDiv, MESSAGES.email.required);
@@ -73,16 +91,32 @@ function validateEmailFormatOnly(email, alertDiv) {
     hideError(alertDiv);
     return true;
 }
+/**
+ * Validates email:
+ * - Format check
+ * - Checks if already exists on server
+ */
 async function validateEmail(email, alertDiv) {
     if (!validateEmailFormatOnly(email, alertDiv))
         return false;
-    if (await isEmailExist(email)) {
-        showError(alertDiv, MESSAGES.email.exists);
+    try {
+        if (await isEmailExist(email)) {
+            showError(alertDiv, MESSAGES.email.exists);
+            return false;
+        }
+        hideError(alertDiv);
+        return true;
+    }
+    catch {
+        showPopup(MESSAGES.emailCheckFail);
         return false;
     }
-    hideError(alertDiv);
-    return true;
 }
+/**
+ * Validates password:
+ * - Required
+ * - Format must match pattern
+ */
 function validatePassword(password, alertDiv) {
     if (!password) {
         showError(alertDiv, MESSAGES.password.required);
@@ -94,27 +128,4 @@ function validatePassword(password, alertDiv) {
     }
     hideError(alertDiv);
     return true;
-}
-async function isEmailExist(email) {
-    try {
-        const res = await fetch(`${API_BASE_URL}/users?email=${encodeURIComponent(email)}`);
-        if (!res.ok)
-            return false;
-        const data = await res.json();
-        return data.length > 0;
-    }
-    catch {
-        showPopup(MESSAGES.emailCheckFail);
-        return false;
-    }
-}
-function redirectToSignIn() {
-    window.location.href = "signin.html";
-}
-async function registerUser(user) {
-    return await fetch(`${API_BASE_URL}/users`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(user)
-    });
 }
