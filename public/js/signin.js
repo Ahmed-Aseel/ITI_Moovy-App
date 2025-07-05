@@ -1,24 +1,38 @@
-// signin.ts
-import { API_BASE_URL, MESSAGES, showError, hideError, showPopup, hashPassword } from "./shared.js"; // Reusing exports from shared
+// --- Imports ---
+import { MESSAGES, showError, hideError, showPopup, hashPassword } from "./shared.js";
+import { fetchUserByEmail } from "./api.js";
+import { saveUserSession, getSavedUser, redirectToHome } from "./auth.js";
+// --- Element References ---
 const form = document.querySelector("form");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 const rememberMeInput = document.getElementById("rememberMe");
 const emailAlert = emailInput.nextElementSibling;
 const passwordAlert = passwordInput.closest(".mb-4").querySelector(".alert");
+// --- DOM Events ---
 document.addEventListener("DOMContentLoaded", () => {
-    // Auto-login redirect if session exists
-    const sessionUser = localStorage.getItem("user") || sessionStorage.getItem("user");
+    checkAutoLogin();
+    setupPasswordToggle();
+    form.addEventListener("submit", handleSignIn);
+});
+/**
+ * Checks for existing user session and remembered email
+ */
+function checkAutoLogin() {
+    const sessionUser = getSavedUser();
     if (sessionUser) {
         redirectToHome();
     }
-    // Auto-fill remembered email
     const rememberedEmail = localStorage.getItem("rememberedEmail");
     if (rememberedEmail) {
         emailInput.value = rememberedEmail;
         rememberMeInput.checked = true;
     }
-    // Toggle password visibility
+}
+/**
+ * Sets up password visibility toggle
+ */
+function setupPasswordToggle() {
     const toggleBtn = document.getElementById("togglePassword");
     const toggleIcon = document.getElementById("toggleIcon");
     toggleBtn.addEventListener("click", () => {
@@ -26,14 +40,9 @@ document.addEventListener("DOMContentLoaded", () => {
         passwordInput.type = visible ? "password" : "text";
         toggleIcon.classList.replace(visible ? "fa-eye-slash" : "fa-eye", visible ? "fa-eye" : "fa-eye-slash");
     });
-    // Handle form submit
-    form.addEventListener("submit", handleSignIn);
-});
+}
 /**
- * Handles sign-in process:
- * - Fetch user by email
- * - Hash entered password
- * - Compare with stored hashed password
+ * Handles sign-in logic: validation, API call, hashing, session storage
  */
 async function handleSignIn(e) {
     e.preventDefault();
@@ -58,8 +67,7 @@ async function handleSignIn(e) {
     if (!isValid)
         return;
     try {
-        const response = await fetch(`${API_BASE_URL}/users?email=${encodeURIComponent(email)}`);
-        const users = await response.json();
+        const users = await fetchUserByEmail(email);
         const user = users[0];
         if (!user) {
             showPopup(MESSAGES.email.wrong);
@@ -70,24 +78,10 @@ async function handleSignIn(e) {
             showPopup(MESSAGES.password.wrong);
             return;
         }
-        // Store user data based on "remember me"
-        const sessionData = JSON.stringify({ id: user.id, email: user.email });
-        if (rememberMe) {
-            localStorage.setItem("rememberedEmail", email);
-            localStorage.setItem("user", sessionData);
-        }
-        else {
-            sessionStorage.setItem("user", sessionData);
-            localStorage.removeItem("rememberedEmail");
-            localStorage.removeItem("user");
-        }
-        // Redirect to homepage
+        saveUserSession({ id: user.id, email: user.email }, rememberMe);
         redirectToHome();
     }
     catch {
         showPopup(MESSAGES.serverFail);
     }
-}
-function redirectToHome() {
-    window.location.href = "index.html";
 }
