@@ -3,13 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moovy</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
+    <title>Moovy - Home</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <div class="home">
+        <div class="container">
+            <nav id="mainNav" class="navbar fixed-top py-3">
+                <div class="container d-flex justify-content-between align-items-center flex-wrap">
+                    <div class="d-flex align-items-center gap-4 flex-wrap">
+                        <a href="index.html" class="home-logo d-flex align-items-center">
+                            <img src="images/moovy-logo.png" alt="Moovy Logo" style="height: 40px;" />
+                        </a>
+
+                        <ul class="nav-links d-flex gap-3 align-items-center mb-0 list-unstyled">
+                            <li><a href="index.html" class="nav-link text-white">Home</a></li>
+                            <li><a href="#trending" class="nav-link text-white">Movies</a></li>
+                            <li><a href="#tvSeries" class="nav-link text-white">TV Series</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0">
+                        <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Search..."
+                            style="max-width: 200px;" autocomplete="off" />
+                        <button id="signoutBtn" class="btn btn-danger btn-sm">Signout</button>
+                    </div>
+                </div>
+            </nav>
+
+            <main class="home-main">
+                <section id="trending" class="mb-5">
+                    <h2 class="mb-3">Trending</h2>
+                    <div class="scroll-container" id="trendingList"></div>
+                </section>
+                <section id="topRated" class="mb-5">
+                    <h2 class="mb-3">Top Rated</h2>
+                    <div class="scroll-container" id="topRatedList"></div>
+                </section>
+                <section id="tvSeries" class="mb-5">
+                    <h2 class="mb-3">Tv Series</h2>
+                    <div class="scroll-container" id="tvSeriesList"></div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Custom popup message -->
+    <div id="popupMessage" class="position-fixed top-0 start-50 translate-middle-x alert d-none"
+        style="z-index: 1055; margin-top: 1rem;"></div>
 
     <script src="js/bootstrap.bundle.min.js"></script>
-    <script src="js/index.js"></script>
+    <script type="module" src="js/index.js"></script>
 </body>
 </html>
