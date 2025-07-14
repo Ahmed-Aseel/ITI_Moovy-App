@@ -8,6 +8,7 @@ const trendingList = document.getElementById("trendingList")!;
 const topRatedList = document.getElementById("topRatedList")!;
 const tvSeriesList = document.getElementById("tvSeriesList")!;
 const nav = document.getElementById("mainNav");
+const navbarCollapse = document.getElementById('navbarContent');
 const signoutBtn = document.getElementById("signoutBtn")!;
 
 // On DOM ready
@@ -15,6 +16,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (nav) {
         const navHeight = nav.offsetHeight;
         document.body.style.paddingTop = `${navHeight}px`;
+    }
+
+    if (nav && navbarCollapse) {
+        navbarCollapse.addEventListener('show.bs.collapse', () => {
+            nav.classList.add('show-bg-on-toggle');
+        });
+
+        navbarCollapse.addEventListener('hide.bs.collapse', () => {
+            nav.classList.remove('show-bg-on-toggle');
+        });
     }
 
     try {
