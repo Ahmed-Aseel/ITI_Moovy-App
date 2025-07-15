@@ -45,3 +45,12 @@ export function redirectToSignIn() {
 export function redirectToHome() {
     window.location.href = "index.html";
 }
+// ========================
+// Auth Guard
+// ========================
+export function protectRoute() {
+    const userData = getSavedUser();
+    if (!userData) {
+        redirectToSignIn();
+    }
+}
