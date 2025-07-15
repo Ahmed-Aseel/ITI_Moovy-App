@@ -1,7 +1,13 @@
 // --- API CONFIGURATION ---
 const JSON_SERVER_BASE_URL = "http://localhost:3000";
+
 const TMDB_API_KEY = "cc687401dafd56a04490baaaa29e1329";
 const TMDB_API_BASE_URL = "https://api.themoviedb.org/3/";
+
+// Gemini Chat API
+const GEMINI_API_KEY = "AIzaSyAlmSDOeizX0Ne60ladEFBTmC5pUGoo9qo";
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+
 
 // ===========================
 // JSON SERVER (USER) METHODS
@@ -123,4 +129,27 @@ export async function searchTMDB(query: string): Promise<any[]> {
     if (!response.ok) throw new Error("Failed to search TMDB");
     const data = await response.json();
     return data.results;
+}
+
+// ======================
+// GEMINI API METHODS 
+// ======================
+export async function getBotReply(prompt: string): Promise<string> {
+    try {
+        const response = await fetch(GEMINI_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: { temperature: 0.7, maxOutputTokens: 150 }
+            }),
+        });
+
+        const data = await response.json();
+        const message = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        return message || "Sorry, no response from Gemini.";
+    } catch (err) {
+        console.error("Gemini API error:", err);
+        return "Error reaching Gemini API.";
+    }
 }
