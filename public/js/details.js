@@ -1,9 +1,10 @@
 import { fetchDetailsAndCredits } from "./api.js";
 import { showPopup } from "./shared.js";
-import { getSavedUser } from "./auth.js";
+import { protectRoute, getSavedUser } from "./auth.js";
 let reviews = [];
 let currentUser = null;
 document.addEventListener('DOMContentLoaded', () => {
+    protectRoute(); // Redirect if not signed in
     const userData = getSavedUser();
     currentUser = userData ? JSON.parse(userData) : null;
     const params = new URLSearchParams(window.location.search);
@@ -32,38 +33,38 @@ async function renderDetails(type, id) {
             duration = `${h}h ${m}m`;
         }
         container.innerHTML = `
-      <section class="details">
-        <div class="hero" style="background-image: url('https://image.tmdb.org/t/p/w1280${details.backdrop_path}')">
-          <h2 class="hero__title">${details.name || details.title}</h2>
-          <div class="hero__btns">
-            <a href="#" class="btn btn-danger"><img src="images/play.png" alt=""> <span>Play</span></a>
-            <a href="#" class="btn btn-danger"><img src="images/Plus.png" alt=""></a>
-          </div>
-        </div>
+			<section class="details">
+				<div class="hero" style="background-image: url('https://image.tmdb.org/t/p/w1280${details.backdrop_path}')">
+					<h2 class="hero__title">${details.name || details.title}</h2>
+					<div class="hero__btns">
+						<a href="#" class="btn btn-danger"><img src="images/play.png" alt=""> <span>Play</span></a>
+						<a href="#" class="btn btn-danger"><img src="images/Plus.png" alt=""></a>
+					</div>
+				</div>
 
-        <div class="media-info">
-          <div class="media-info__wrapper">
-            <span>${details.release_date?.split('-')[0] || details.last_air_date?.split('-')[0]}</span>
-            <span>${duration}</span>
-            <span><img src="images/hd.png" alt=""></span>
-            <span><img src="images/AD.png" alt=""></span>
-            <span><img src="images/subtitles.png" alt=""></span>
-          </div>
-          <p>${details.overview.slice(0, 250)}...</p>
-          <p><strong>Genre:</strong> ${details.genres.map((g) => g.name).join(', ')}</p>
-          ${cast.length ? `<p><strong>Cast:</strong> ${cast.slice(0, 4).map(c => c.name).join(', ')}</p>` : ''}
-        </div>
+				<div class="media-info">
+					<div class="media-info__wrapper">
+						<span>${details.release_date?.split('-')[0] || details.last_air_date?.split('-')[0]}</span>
+						<span>${duration}</span>
+						<span><img src="images/hd.png" alt=""></span>
+						<span><img src="images/AD.png" alt=""></span>
+						<span><img src="images/subtitles.png" alt=""></span>
+					</div>
+					<p>${details.overview.slice(0, 250)}...</p>
+					<p><strong>Genre:</strong> ${details.genres.map((g) => g.name).join(', ')}</p>
+					${cast.length ? `<p><strong>Cast:</strong> ${cast.slice(0, 4).map(c => c.name).join(', ')}</p>` : ''}
+				</div>
 
-        <div class="media__reviews">
-          <h3>Leave a review</h3>
-          <form id="review-form">
-            <textarea class="review__textarea" placeholder="Write your review..." required></textarea>
-            <button type="submit" class="btn btn-danger">Submit</button>
-          </form>
-          <ul class="reviews__container"></ul>
-        </div>
-      </section>
-    `;
+				<div class="media__reviews">
+					<h3>Leave a review</h3>
+					<form id="review-form">
+						<textarea class="review__textarea" placeholder="Write your review..." required></textarea>
+						<button type="submit" class="btn btn-danger">Submit</button>
+					</form>
+					<ul class="reviews__container"></ul>
+				</div>
+			</section>
+		`;
         renderReviews(reviews);
         const reviewForm = document.getElementById('review-form');
         if (reviewForm) {
@@ -92,9 +93,9 @@ function addReview(e, id) {
 function renderReviews(reviews) {
     const container = document.querySelector('.reviews__container');
     container.innerHTML = reviews.map(r => `
-    <li>
-      <h4>${r.userName}</h4>
-      <p>${r.review}</p>
-    </li>
-  `).join('');
+		<li>
+			<h4>${r.userName}</h4>
+			<p>${r.review}</p>
+		</li>
+	`).join('');
 }
