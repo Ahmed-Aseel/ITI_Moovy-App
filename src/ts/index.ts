@@ -2,6 +2,7 @@
 import { fetchMoviesByEndpoint, fetchTVByEndpoint, searchTMDB } from "./api.js";
 import { showPopup } from "./shared.js";
 import { protectRoute, deleteSavedUser, redirectToSignIn } from "./auth.js";
+import { initChatbot } from "./chatbot.js";
 
 // DOM elements
 const trendingList = document.getElementById("trendingList")!;
@@ -15,6 +16,7 @@ const signoutBtn = document.getElementById("signoutBtn")!;
 document.addEventListener("DOMContentLoaded", async () => {
     protectRoute(); // Redirect if not signed in
     initSearch();   // Initialize search functionality
+    initChatbot();  // initialize chatbot
 
     if (nav) {
         const navHeight = nav.offsetHeight;
